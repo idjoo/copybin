@@ -20,12 +20,12 @@ jobs:
       with:
         profile: minimal
         toolchain: stable
-        override: true
+        components: rustfmt
     - run: rustup component add rustfmt
     - uses: actions-rs/cargo@v1
       with:
         command: fmt
-        args: --all -- --check
+        args: --check
 
   build:
     name: Build
