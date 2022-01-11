@@ -1,0 +1,2 @@
+# copybin
+Pastebin from terminal
