@@ -1,2 +1,2 @@
-# copybin
+# 📋 copybin
 Pastebin from terminal
