@@ -1,4 +1,4 @@
-name: Format
+name: Rust
 
 on:
   push:
@@ -11,6 +11,7 @@ env:
 
 jobs:
   format:
+    name: Format
     runs-on: ubuntu-latest
 
     steps:
@@ -25,3 +26,11 @@ jobs:
       with:
         command: fmt
         args: --all -- --check
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses : actions/checkout@v2
+    - run : cargo build --verbose
