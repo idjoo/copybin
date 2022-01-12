@@ -10,39 +10,34 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  format:
-    name: Format
+  check:
+    name: Check
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions-rs/toolchain@v1
+
+    - name: Install toolchain
+      uses: actions-rs/toolchain@v1
       with:
         toolchain: nightly
-        profile: default
-        components: rustfmt
-    - run: rustup component add rustfmt
-    - uses: actions-rs/cargo@v1
+        override: true
+        components: rustfmt, clippy
+
+    - name: Add components
+      run: rustup component add rustfmt clippy
+
+    - name: Lint
+      uses: action-rs/cargo@v1
       with:
         command: clippy
-        args: --all -- --check
+        args: --fix -- --deny warnings
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly
-        profile: default
-        components: clippy
-    - run: rustup component add clippy
-    - uses: actions-rs/cargo@v1
+    - name: Format
+      uses: actions-rs/cargo@v1
       with:
         command: fmt
-        args: --all -- -D warnings
+        args: --all -- --check
 
   build:
     name: Build
