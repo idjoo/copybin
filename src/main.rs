@@ -1,14 +1,13 @@
 #![allow(unused)]
 
+use std::fs::{create_dir_all, File};
 use std::io;
 use std::io::prelude::*;
-use std::fs::{File, create_dir_all};
 use std::path::Path;
 
 mod lib;
 use lib::cli::*;
 use lib::proc::*;
-
 
 fn main() {
     let app = Cli::new();

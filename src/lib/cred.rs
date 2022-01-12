@@ -1,9 +1,9 @@
+use serde::Deserialize;
+use std::fs;
 use std::io::Read;
 use std::io::Write;
-use std::fs;
 use std::path::Path;
 use toml;
-use serde::Deserialize;
 
 #[derive(Debug, Default, Deserialize)]
 pub struct Cred {
@@ -49,9 +49,7 @@ impl Cred {
         if cred.devkey.is_empty() {
             println!("No devkey found. Please enter one.");
         }
-        if !cred.username.is_empty() && !cred.password.is_empty() {
-            
-        }
+        if !cred.username.is_empty() && !cred.password.is_empty() {}
 
         cred
     }

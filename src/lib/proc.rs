@@ -1,17 +1,17 @@
-use std::path::Path;
-use std::io::prelude::*;
-use std::io::{Read,Write,Error, ErrorKind};
 use std::fs;
+use std::io::prelude::*;
+use std::io::{Error, ErrorKind, Read, Write};
+use std::path::Path;
 
+use dirs;
 use futures::stream::TryStreamExt;
 use reqwest::{Body, Client};
+use tokio;
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
-use dirs;
-use tokio;
 
-use crate::lib::flag::Flags;
 use crate::lib::cred::Cred;
+use crate::lib::flag::Flags;
 
 fn type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
@@ -44,14 +44,15 @@ pub fn detect_proglang(path: &Path) -> Result<String, Error> {
 
 async fn login_to_pastebin(cred: &Cred) -> Result<String, Box<dyn std::error::Error>> {
     let client = Client::new();
-    let mut userkey = String::new();    
+    let mut userkey = String::new();
     let data = [
         ("api_dev_key", cred.devkey.as_str()),
         ("api_user_name", cred.username.as_str()),
         ("api_user_password", cred.password.as_str()),
     ];
 
-    let res = client.post("https://pastebin.com/api/api_login.php")
+    let res = client
+        .post("https://pastebin.com/api/api_login.php")
         .form(&data)
         .send()
         .await?;
@@ -70,7 +71,10 @@ async fn login_to_pastebin(cred: &Cred) -> Result<String, Box<dyn std::error::Er
 }
 
 #[tokio::main]
-pub async fn upload_to_pastebin(input: &str, args: &clap::ArgMatches) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn upload_to_pastebin(
+    input: &str,
+    args: &clap::ArgMatches,
+) -> Result<(), Box<dyn std::error::Error>> {
     let client = reqwest::Client::new();
     let flag = Flags::set_flags(args);
     let cred = Cred::load();
@@ -83,7 +87,6 @@ pub async fn upload_to_pastebin(input: &str, args: &clap::ArgMatches) -> Result<
         ("api_dev_key", cred.devkey.as_str()),
         ("api_option", "paste"),
         ("api_paste_code", input),
-
         // optional
         ("api_user_key", &userkey),
         ("api_paste_name", args.value_of("title").unwrap()),
@@ -92,10 +95,7 @@ pub async fn upload_to_pastebin(input: &str, args: &clap::ArgMatches) -> Result<
         ("api_paste_expire_date", "10M"),
     ];
 
-    let res = client.post(url)
-        .form(&data)
-        .send()
-        .await?;
+    let res = client.post(url).form(&data).send().await?;
 
     match res.status() {
         reqwest::StatusCode::OK => {

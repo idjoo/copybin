@@ -43,7 +43,9 @@ impl<'a> Cli<'a> {
                     .takes_value(true)
                     .possible_value(PossibleValue::new("0").help("Public"))
                     .possible_value(PossibleValue::new("1").help("Unlisted"))
-                    .possible_value(PossibleValue::new("2").help("Private (in combination with api_user_key)"))
+                    .possible_value(
+                        PossibleValue::new("2").help("Private (in combination with api_user_key)"),
+                    )
                     .required(false)
                     .default_value("0"),
             )
@@ -55,8 +57,8 @@ impl<'a> Cli<'a> {
                     .takes_value(true)
                     .required(false)
                     .default_value("10M"),
-            )
-        ;Self { app }
+            );
+        Self { app }
     }
 
     pub fn parse(self) -> ArgMatches {
