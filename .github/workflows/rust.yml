@@ -27,6 +27,23 @@ jobs:
         command: fmt
         args: --all -- --check
 
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+        profile: default
+        components: clippy
+    - run: rustup component add clippy
+    - uses: actions-rs/cargo@v1
+      with:
+        command: fmt
+        args: --all -- -D warnings
+
   build:
     name: Build
     runs-on: ubuntu-latest
