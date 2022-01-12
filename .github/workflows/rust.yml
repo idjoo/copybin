@@ -39,6 +39,9 @@ jobs:
         command: fmt
         args: --all -- --check
 
+    - name: Check
+      run: cargo check
+
   build:
     name: Build
     runs-on: ubuntu-latest
