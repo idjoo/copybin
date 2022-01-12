@@ -39,8 +39,7 @@ jobs:
         command: fmt
         args: --all -- --check
 
-    - name: Check
-      run: cargo check
+    - run: cargo check
 
   build:
     name: Build
