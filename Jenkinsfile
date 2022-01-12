@@ -3,7 +3,12 @@ pipeline {
 
     stages {
         stage('Build') {
-            sh "cargo build"
+            steps {
+                echo '----------Start----------'
+                sh   'cargo build'
+                echo '-----------End-----------'
+                echo 'SUCCESS'
+            }
         }
     }
 }
