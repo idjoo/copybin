@@ -46,11 +46,12 @@ impl Flag {
         flags.api_option = "paste".to_string();
         flags.api_paste_name = a.value_of("title").unwrap().to_string();
 
+        let is_file = Path::new(a.value_of("input").unwrap_or("STDIN"));
         let is_auto = a.value_of("format").unwrap();
-        let is_stdin = a.value_of("input").unwrap();
-        let path = Path::new(is_stdin);
-        if is_auto == "auto" && is_stdin != "STDIN" {
-            flags.api_paste_format = detect_proglang(path).unwrap();
+        if is_file != Path::new("STDIN") && is_auto == "auto" {
+            flags.api_paste_format = detect_proglang(is_file).unwrap();
+        } else {
+            flags.api_paste_format = a.value_of("format").unwrap().to_string();
         }
 
         flags.api_paste_private = a.value_of("private").unwrap().to_string();

@@ -13,7 +13,7 @@ impl<'a> Cli<'a> {
             .about("Copy contents of a file and upload to pastebin")
             .arg(
                 Arg::new("input")
-                    .help("Input file")
+                    .help("Input [file|stdin]")
                     .takes_value(true)
                     .required(false),
             )
