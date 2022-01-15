@@ -50,9 +50,9 @@ impl<'a> Cli<'a> {
                     .default_value("0"),
             )
             .arg(
-                Arg::new("expired-date")
+                Arg::new("expire-date")
                     .help("Specify expiration time of the paste")
-                    .long("expired-date")
+                    .long("expire-date")
                     .short('e')
                     .takes_value(true)
                     .required(false)

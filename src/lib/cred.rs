@@ -5,7 +5,7 @@ use std::io::Write;
 use std::path::Path;
 use toml;
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Cred {
     pub devkey: String,
     pub username: String,
@@ -13,14 +13,10 @@ pub struct Cred {
 }
 
 impl Cred {
-    pub fn new() -> Self {
-        Cred::default()
-    }
-
     fn create(path: &Path) -> std::io::Result<()> {
         // Create config dir
         let config_dir = path.parent().unwrap();
-        fs::create_dir_all(config_dir);
+        let _ = fs::create_dir_all(config_dir);
 
         // Create config file
         let mut file = fs::File::create(path)?;

@@ -1,45 +1,11 @@
-use std::fs;
-use std::io::prelude::*;
-use std::io::{Error, ErrorKind, Read, Write};
-use std::path::Path;
-
-use dirs;
-use futures::stream::TryStreamExt;
-use reqwest::{Body, Client};
+use reqwest::Client;
 use tokio;
-use tokio::fs::File;
-use tokio_util::codec::{BytesCodec, FramedRead};
 
 use crate::lib::cred::Cred;
-use crate::lib::flag::Flags;
+use crate::lib::flag::Flag;
 
-fn type_of<T>(_: &T) {
+fn _type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
-}
-
-pub fn detect_proglang(path: &Path) -> Result<String, Error> {
-    let ext = path.extension().unwrap().to_str().unwrap();
-    match ext {
-        "rs" => Ok("rust".to_string()),
-        "py" => Ok("python".to_string()),
-        "js" => Ok("javascript".to_string()),
-        "go" => Ok("golang".to_string()),
-        "c" => Ok("c".to_string()),
-        "cpp" => Ok("cpp".to_string()),
-        "java" => Ok("java".to_string()),
-        "cs" => Ok("csharp".to_string()),
-        "php" => Ok("php".to_string()),
-        "rb" => Ok("ruby".to_string()),
-        "hs" => Ok("haskell".to_string()),
-        "pl" => Ok("perl".to_string()),
-        "sh" => Ok("bash".to_string()),
-        "hs" => Ok("haskell".to_string()),
-        "clj" => Ok("clojure".to_string()),
-        "erl" => Ok("erlang".to_string()),
-        "scala" => Ok("scala".to_string()),
-        "ml" => Ok("ocaml".to_string()),
-        _ => Err(Error::new(ErrorKind::Other, "Unsupported file type")),
-    }
 }
 
 async fn login_to_pastebin(cred: &Cred) -> Result<String, Box<dyn std::error::Error>> {
@@ -59,7 +25,7 @@ async fn login_to_pastebin(cred: &Cred) -> Result<String, Box<dyn std::error::Er
 
     match res.status() {
         reqwest::StatusCode::OK => {
-            let mut body = res.bytes().await?;
+            let body = res.bytes().await?;
             let buf = String::from_utf8_lossy(&body);
             userkey.push_str(&buf);
         }
@@ -74,10 +40,11 @@ async fn login_to_pastebin(cred: &Cred) -> Result<String, Box<dyn std::error::Er
 pub async fn upload_to_pastebin(
     input: &str,
     args: &clap::ArgMatches,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<String, Box<dyn std::error::Error>> {
+    let mut pastebin_url = String::new();
     let client = reqwest::Client::new();
-    let flag = Flags::set_flags(args);
     let cred = Cred::load();
+    let flag = Flag::set_flags(args);
 
     let userkey = login_to_pastebin(&cred).await.unwrap();
 
@@ -85,28 +52,27 @@ pub async fn upload_to_pastebin(
     let data = [
         // required
         ("api_dev_key", cred.devkey.as_str()),
-        ("api_option", "paste"),
+        ("api_option", &flag.api_option),
         ("api_paste_code", input),
         // optional
         ("api_user_key", &userkey),
-        ("api_paste_name", args.value_of("title").unwrap()),
-        ("api_paste_format", ""),
-        ("api_paste_private", ""),
-        ("api_paste_expire_date", "10M"),
+        ("api_paste_name", &flag.api_paste_name),
+        ("api_paste_format", &flag.api_paste_format),
+        ("api_paste_private", &flag.api_paste_private),
+        ("api_paste_expire_date", &flag.api_paste_expire_date),
     ];
 
     let res = client.post(url).form(&data).send().await?;
-
     match res.status() {
         reqwest::StatusCode::OK => {
-            let mut body = res.bytes().await?;
+            let body = res.bytes().await?;
             let buf = String::from_utf8_lossy(&body);
-            println!("url: {}", buf);
+            pastebin_url.push_str(&buf);
         }
         _ => {
-            println!("{}", res.status());
+            res.status();
         }
     }
 
-    Ok(())
+    Ok(pastebin_url)
 }
