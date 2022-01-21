@@ -10,19 +10,23 @@ use lib::proc::*;
 fn main() {
     let app = Cli::new();
     let args = app.parse();
-    let input = Path::new(args.value_of("input").unwrap_or("STDIN"));
+    let input = args.value_of("input").unwrap_or("-");
 
     let mut output = String::new();
-    if input == Path::new("STDIN") {
+    if input == "-" {
         io::stdin().read_to_string(&mut output).unwrap();
     } else {
-        let mut file = File::open(input).unwrap();
-        file.read_to_string(&mut output).unwrap();
+        if Path::new(input).is_file() {
+            let mut file = File::open(input).unwrap();
+            file.read_to_string(&mut output).unwrap();
+        } else {
+            output = input.to_string();
+        }
     }
 
     let copybin_url = upload_to_pastebin(&output, &args);
     match copybin_url {
         Ok(url) => println!("{}", url),
-        Err(error) => println!("Upload failed: {}", error),
+        _ => println!("Error uploading to pastebin"),
     }
 }

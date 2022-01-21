@@ -3,6 +3,7 @@ use tokio;
 
 use crate::lib::cred::Cred;
 use crate::lib::flag::Flag;
+use colored::Colorize;
 
 fn _type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
@@ -30,7 +31,7 @@ async fn login_to_pastebin(cred: &Cred) -> Result<String, Box<dyn std::error::Er
             userkey.push_str(&buf);
         }
         _ => {
-            println!("{}", res.status());
+            println!("{}: {}", "Warn".yellow(), res.status());
         }
     }
     Ok(userkey)
@@ -45,6 +46,16 @@ pub async fn upload_to_pastebin(
     let client = reqwest::Client::new();
     let cred = Cred::load();
     let flag = Flag::set_flags(args);
+
+    if cred.username.is_empty() || cred.password.is_empty() {
+        if flag.api_paste_private == "2" {
+            println!(
+                "{}: You need to set your credentials in the config file.",
+                "Err".red()
+            );
+            std::process::exit(1);
+        }
+    }
 
     let userkey = login_to_pastebin(&cred).await.unwrap();
 
@@ -70,9 +81,8 @@ pub async fn upload_to_pastebin(
             pastebin_url.push_str(&buf);
         }
         _ => {
-            res.status();
+            print!("{}: {}", "Err".red(), res.status());
         }
     }
-
     Ok(pastebin_url)
 }

@@ -32,12 +32,11 @@ OPTIONS:
 ```
 
 #### Examples
+- This will create a paste with the title "Hello World" and the language format "rust".
 ```
 $ copybin -p 0 -t "Hello World" -f rust hello.rs
 ```
-This will create a paste with the title "Hello World" and the language format "rust".
-
+- You can also pipe the content of a file to the command.
 ```
 $ cat hello.rs | copybin -p 0 -t "Hello World" -f rust
 ```
-You can also pipe the content of a file to the command.

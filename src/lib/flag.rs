@@ -2,9 +2,10 @@ use clap::ArgMatches;
 use std::io::{Error, ErrorKind};
 use std::path::Path;
 
-fn detect_proglang(path: &Path) -> Result<String, Error> {
+fn _detect_proglang(path: &Path) -> Result<String, Error> {
     let ext = path.extension().unwrap().to_str().unwrap();
     match ext {
+        "txt" => Ok("".to_string()),
         "rs" => Ok("rust".to_string()),
         "py" => Ok("python".to_string()),
         "js" => Ok("javascript".to_string()),
@@ -46,10 +47,13 @@ impl Flag {
         flags.api_option = "paste".to_string();
         flags.api_paste_name = a.value_of("title").unwrap().to_string();
 
-        let is_file = Path::new(a.value_of("input").unwrap_or("STDIN"));
+        let input = Path::new(a.value_of("input").unwrap_or("-"));
+        let is_file = input.is_file();
         let is_auto = a.value_of("format").unwrap();
-        if is_file != Path::new("STDIN") && is_auto == "auto" {
-            flags.api_paste_format = detect_proglang(is_file).unwrap();
+        if is_file && is_auto == "auto" {
+            flags.api_paste_format = _detect_proglang(input).unwrap();
+        } else if is_auto == "auto" {
+            flags.api_paste_format = "".to_string();
         } else {
             flags.api_paste_format = a.value_of("format").unwrap().to_string();
         }

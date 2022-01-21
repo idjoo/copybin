@@ -1,4 +1,4 @@
-use clap::{App, Arg, ArgMatches, PossibleValue};
+use clap::{App, Arg, ArgGroup, ArgMatches, PossibleValue};
 
 pub struct Cli<'a> {
     app: App<'a>,
@@ -8,22 +8,20 @@ impl<'a> Cli<'a> {
     pub fn new() -> Self {
         let app = App::new("copybin")
             .setting(clap::AppSettings::ArgRequiredElseHelp)
-            .version("0.1.0")
+            .version("0.1.1")
             .author("cocatrip, cocatrip@yahoo.com")
             .about("Copy contents of a file and upload to pastebin")
             .arg(
                 Arg::new("input")
                     .help("Input [file|stdin]")
-                    .takes_value(true)
-                    .required(false),
+                    .takes_value(true),
             )
             .arg(
                 Arg::new("title")
-                    .help("Title of the paste")
+                    .help("Specify the title of the paste")
                     .long("title")
                     .short('t')
                     .takes_value(true)
-                    .required(false)
                     .default_value("Untitled"),
             )
             .arg(
@@ -32,7 +30,6 @@ impl<'a> Cli<'a> {
                     .long("format")
                     .short('f')
                     .takes_value(true)
-                    .required(false)
                     .default_value("auto"),
             )
             .arg(
@@ -46,7 +43,6 @@ impl<'a> Cli<'a> {
                     .possible_value(
                         PossibleValue::new("2").help("Private (in combination with api_user_key)"),
                     )
-                    .required(false)
                     .default_value("0"),
             )
             .arg(
@@ -55,8 +51,21 @@ impl<'a> Cli<'a> {
                     .long("expire-date")
                     .short('e')
                     .takes_value(true)
-                    .required(false)
+                    .possible_value(PossibleValue::new("N").help("Never"))
+                    .possible_value(PossibleValue::new("10M").help("10 Minutes"))
+                    .possible_value(PossibleValue::new("1H").help("1 Hour"))
+                    .possible_value(PossibleValue::new("1D").help("1 Day"))
+                    .possible_value(PossibleValue::new("1W").help("1 Week"))
+                    .possible_value(PossibleValue::new("2W").help("2 Weeks"))
+                    .possible_value(PossibleValue::new("1M").help("1 Month"))
+                    .possible_value(PossibleValue::new("6M").help("6 Months"))
+                    .possible_value(PossibleValue::new("1Y").help("1 Year"))
                     .default_value("10M"),
+            )
+            .group(
+                ArgGroup::new("options")
+                    .args(&["format", "private", "expire-date", "title"])
+                    .required(false),
             );
         Self { app }
     }
